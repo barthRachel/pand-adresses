@@ -61,6 +61,26 @@ function showModal(e){
 }
 
 //***************************************************//
+//                SUPPRESSION CONTACT               //
+//*************************************************//
+
+const modalDelete = document.getElementById('modal-delete')
+modalDelete.addEventListener("click", () => {
+    const allContactsLS = JSON.parse(localStorage.getItem("allContacts")) || []
+    const modalPhone = document.getElementById('modal-phone').innerText.split(' : ')[1]
+    console.log(modalPhone)
+
+    for(let i = 0 ; i < allContactsLS.length ; i++){
+        if(allContactsLS[i].numberPhone == modalPhone){
+            allContactsLS.splice(i,1)
+            localStorage.setItem("allContacts", JSON.stringify(allContactsLS));
+
+            window.location.reload();
+        }
+    }
+})
+
+//***************************************************//
 //                  AJOUT CONTACT                   //
 //*************************************************//
 
