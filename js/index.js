@@ -1,4 +1,66 @@
 //***************************************************//
+//                AFFICHAGE CONTACTS                //
+//*************************************************//
+
+showAllContacts()
+
+function showAllContacts(){
+    //récupération du localStorage
+    var allContactsLS = JSON.parse(localStorage.getItem("allContacts")) || []
+    //création des tableaux des classes a ajouter pour la mise en forme
+    const classesDiv = ["col-12", "border", "border-2", "border-danger", "my-1", "bg-primary", "rounded"];
+    const classesH3 = ["my-3"]
+
+    for(i = 0 ; i < allContactsLS.length ; i++){
+        //création des éléments pour chaque contact
+        const divContact = document.createElement("div");
+        const contactName = document.createElement("h3");
+
+        //association des classes aux éléments
+        for(let j = 0 ; j < classesDiv.length ; j++){
+        divContact.classList.add(classesDiv[j]);
+        }
+
+        for(let k = 0 ; k < classesH3.length ; k++){
+            contactName.classList.add(classesH3[k])
+        }
+
+        const contactPlace = document.getElementById(allContactsLS[i].firstName[0].toLowerCase())
+        divContact.appendChild(contactName);
+        contactName.innerText = allContactsLS[i].firstName + " " + allContactsLS[i].lastName;
+        divContact.setAttribute('data-bs-toggle','modal');
+        divContact.setAttribute('data-bs-target','#contactInformations')
+        divContact.addEventListener("click", (e) => { showModal(e) })
+        contactPlace.appendChild(divContact)
+
+    }
+}
+
+//***************************************************//
+//          AFFICHAGE INFORMATIONS CONTACT          //
+//*************************************************//
+
+function showModal(e){
+    //récupération des éléments du modal
+    const modalTitle = document.getElementById('modal-title');
+    const modalPhone = document.getElementById('modal-phone');
+    const modalMail = document.getElementById('modal-mail');
+    const modalAddress = document.getElementById('modal-address');
+    //récupération du localStorage
+    var allContactsLS = JSON.parse(localStorage.getItem("allContacts")) || []
+    
+    const actualContactName = e.target.innerText.split(" ");
+    const placeInLocalStorage = allContactsLS.findIndex(contactTest => contactTest.firstName == actualContactName[0] && contactTest.lastName == actualContactName[1]);
+            
+    modalTitle.innerText = e.target.innerText
+    console.log(allContactsLS[placeInLocalStorage])
+
+    modalPhone.innerText = "Numéro : " + allContactsLS[placeInLocalStorage].numberPhone
+    modalMail.innerText = "Mail : " + allContactsLS[placeInLocalStorage].email;
+    modalAddress.innerText = "Adresse : " + allContactsLS[placeInLocalStorage].address
+}
+
+//***************************************************//
 //                  AJOUT CONTACT                   //
 //*************************************************//
 
@@ -153,33 +215,40 @@ addButton.addEventListener('click', (e) => {
             numberPhoneFile.classList.add('border-danger');
         }
     } else if(boolTest == true){
-        firstName = firstNameFile.value;
-        lastName = nameFile.value;
-        numberPhone = numberPhoneFile.value;
-        email = emailFile.value;
-        address = addressFile.value;
 
-        createContact(firstName, lastName, numberPhone, email, address)
+        let contact = {
+            firstName : firstNameFile.value,
+            lastName : nameFile.value,
+            numberPhone : numberPhoneFile.value,
+            email : emailFile.value,
+            address : addressFile.value  
+        }
+
+        writeContact(contact)
     }
 })
 
-function createContact(firstName, lastName, numberPhone, email, address){
-    const classes = ["col-12", "border", "border-2", "border-danger", "my-1", "bg-primary", "rounded-pill"];
-    console.log("Ca marche !")
-    console.log(firstName)
-    console.log(lastName)
-    console.log(numberPhone)
-    console.log(email)
-    console.log(address)
+function writeContact(contact){
+    //contact = [firstName, lastName, numberPhone, email, address]
 
-    const contactPlace = document.getElementById(firstName[0].toLowerCase())
-    console.log(contactPlace)
+    var allContactsLS = JSON.parse(localStorage.getItem("allContacts")) || []
+    //console.log(allContactsLS)
 
-    const divContact = document.createElement("div");
-    const contactName = document.createElement("h3");
 
-    contactName.innerText = firstName + " " + lastName;
+    //on vérifie si le contact/numéro existe déjà
+    var alreadyAdd =  allContactsLS.findIndex(contactTest => contactTest.firstName == contact.firstName  && contactTest.lastName == contact.lastName && contactTest.numberPhone == contact.numberPhone);
+    var numberAlreadyKnown = allContactsLS.findIndex(contactTest => contactTest.numberPhone == contact.numberPhone);
+    console.log(alreadyAdd)
+    if(alreadyAdd == 0){
+        window.alert(contact.firstName + " " + contact.lastName + " existe déjà...")
+    } else if (numberAlreadyKnown == 0){
+        window.alert(contact.numberPhone + " est déjà associé a " + allContactsLS[numberAlreadyKnown].firstName + " " + allContactsLS[numberAlreadyKnown].lastName)
+    } else {
+        allContactsLS.push(contact)  
+        localStorage.setItem("allContacts", JSON.stringify(allContactsLS))
 
-    divContact.appendChild(contactName);
-    contactPlace.appendChild(divContact);
+        window.alert(contact.firstName + " " + contact.lastName + " a bien été ajouté !")
+
+        location.reload();
+    }
 }
