@@ -74,7 +74,7 @@ modalDelete.addEventListener("click", () => {
         if(allContactsLS[i].numberPhone == modalPhone){
             allContactsLS.splice(i,1)
             localStorage.setItem("allContacts", JSON.stringify(allContactsLS));
-
+            alert("Le contact va être supprimeé !")
             window.location.reload();
         }
     }
