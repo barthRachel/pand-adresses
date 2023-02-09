@@ -8,8 +8,16 @@ function showAllContacts(){
     //récupération du localStorage
     var allContactsLS = JSON.parse(localStorage.getItem("allContacts")) || []
     //création des tableaux des classes a ajouter pour la mise en forme
-    const classesDiv = ["col-12", "border", "border-2", "border-danger", "my-1", "bg-primary", "rounded"];
-    const classesH3 = ["my-3"]
+    const classesDiv = ["col-12", "my-1", "bg-secondary", "rounded", "col-md-5", "mx-md-1"];
+    const classesH3 = ["my-3", "text-light", "fs-4"]
+    //tri dans l'ordre alphabétique
+    allContactsLS.sort(function(a,b){
+        if(a.firstName < b.firstName){
+            return -1
+        } else {
+            return 1
+        }
+    });
 
     for(i = 0 ; i < allContactsLS.length ; i++){
         //création des éléments pour chaque contact
@@ -53,12 +61,69 @@ function showModal(e){
     const placeInLocalStorage = allContactsLS.findIndex(contactTest => contactTest.firstName == actualContactName[0] && contactTest.lastName == actualContactName[1]);
             
     modalTitle.innerText = e.target.innerText
-    console.log(allContactsLS[placeInLocalStorage])
+    //console.log(allContactsLS[placeInLocalStorage])
 
     modalPhone.innerText = "Numéro : " + allContactsLS[placeInLocalStorage].numberPhone
     modalMail.innerText = "Mail : " + allContactsLS[placeInLocalStorage].email;
     modalAddress.innerText = "Adresse : " + allContactsLS[placeInLocalStorage].address
 }
+
+//***************************************************//
+//               MODIFICATION CONTACT               //
+//*************************************************//
+
+//récupération du formulaire de modification
+var firstNameModify = document.getElementById('firstnameM');
+var nameModify = document.getElementById('nameM');
+var phoneModify = document.getElementById('phoneM');
+var emailModify = document.getElementById('emailM');
+var addressModify = document.getElementById('addressM');
+
+var allContactsLS = JSON.parse(localStorage.getItem("allContacts")) || []
+var contactPlace;
+
+const modalModify = document.getElementById('modal-modify')
+modalModify.addEventListener('click', () => {
+    //récupération des information du contact affiché dans le but de le modifier
+    let numberPhoneActual = document.getElementById('modal-phone').innerText.split(' : ')[1]
+    let firstNameActual = document.getElementById('modal-title').innerText.split(' ')[0]
+    let nameActual = document.getElementById('modal-title').innerText.split(' ')[1]
+    let emailActual = document.getElementById('modal-mail').innerText.split(' : ')[1]
+    let addressActual = document.getElementById('modal-address').innerText.split(' : ')[1]
+    //gestion email & adresse nulle
+    if(emailActual === undefined){
+        emailActual = ""
+    }
+    if(addressActual === undefined){
+        addressActual = ""
+    }
+
+    //récupération de la place du contact dans le LS
+    contactPlace = allContactsLS.findIndex(contactTest => contactTest.firstName == firstNameActual && contactTest.lastName == nameActual && contactTest.numberPhone == numberPhoneActual);
+
+    //préremplissage des inputs dans le but de les modifier
+    firstNameModify.value = firstNameActual
+    nameModify.value = nameActual
+    phoneModify.value = numberPhoneActual
+    emailModify.value = emailActual
+    addressModify.value = addressActual
+})
+
+const modalModifyValidity = document.getElementById('modal-modify-validity')
+modalModifyValidity.addEventListener('click', () => {
+    //récupération du contact à modifier
+    var contactActual = allContactsLS[contactPlace]
+    //modification des informations déjà existante
+    contactActual['firstName'] = firstNameModify.value;
+    contactActual['lastName'] = nameModify.value;
+    contactActual['numberPhone'] = phoneModify.value;
+    contactActual['address'] = addressModify.value;
+    contactActual['email'] = emailModify.value;
+    //modification dans le LS
+    localStorage.setItem("allContacts", JSON.stringify(allContactsLS))
+
+    location.reload()    
+})
 
 //***************************************************//
 //                SUPPRESSION CONTACT               //
