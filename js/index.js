@@ -72,6 +72,13 @@ function showModal(e){
 //               MODIFICATION CONTACT               //
 //*************************************************//
 
+//récupération des boutons
+const modalModification = document.getElementById('modalModification')
+const contactInformations = document.getElementById('contactInformations')
+const btnCloseInformations = document.getElementById('closeInformations')
+const btnCloseModify = document.getElementById('closeModify')
+const btnModalModifyDismiss = document.getElementById('modal-modify-dismiss')
+
 //récupération du formulaire de modification
 var firstNameModify = document.getElementById('firstnameM');
 var nameModify = document.getElementById('nameM');
@@ -82,7 +89,7 @@ var addressModify = document.getElementById('addressM');
 var allContactsLS = JSON.parse(localStorage.getItem("allContacts")) || []
 var contactPlace;
 
-const modalModify = document.getElementById('modal-modify')
+const modalModify = document.getElementById('modal-modify') //Bouton "Modifier"
 modalModify.addEventListener('click', () => {
     //récupération des information du contact affiché dans le but de le modifier
     let numberPhoneActual = document.getElementById('modal-phone').innerText.split(' : ')[1]
@@ -91,15 +98,18 @@ modalModify.addEventListener('click', () => {
     let emailActual = document.getElementById('modal-mail').innerText.split(' : ')[1]
     let addressActual = document.getElementById('modal-address').innerText.split(' : ')[1]
     //gestion email & adresse nulle
-    if(emailActual === undefined){
+    if(emailActual === undefined || emailActual === null){
         emailActual = ""
     }
-    if(addressActual === undefined){
+    if(addressActual === undefined || addressActual === null){
         addressActual = ""
     }
 
     //récupération de la place du contact dans le LS
     contactPlace = allContactsLS.findIndex(contactTest => contactTest.firstName == firstNameActual && contactTest.lastName == nameActual && contactTest.numberPhone == numberPhoneActual);
+
+    modalModification.style.display = 'none';
+    contactInformations.style.display = 'block';
 
     //préremplissage des inputs dans le but de les modifier
     firstNameModify.value = firstNameActual
@@ -109,20 +119,66 @@ modalModify.addEventListener('click', () => {
     addressModify.value = addressActual
 })
 
-const modalModifyValidity = document.getElementById('modal-modify-validity')
+const modalModifyValidity = document.getElementById('modal-modify-validity') //Bouton "Confirmer"
 modalModifyValidity.addEventListener('click', () => {
     //récupération du contact à modifier
     var contactActual = allContactsLS[contactPlace]
-    //modification des informations déjà existante
-    contactActual['firstName'] = firstNameModify.value;
-    contactActual['lastName'] = nameModify.value;
-    contactActual['numberPhone'] = phoneModify.value;
-    contactActual['address'] = addressModify.value;
-    contactActual['email'] = emailModify.value;
-    //modification dans le LS
-    localStorage.setItem("allContacts", JSON.stringify(allContactsLS))
 
-    location.reload()    
+    var contactExists = allContactsLS.findIndex(contactTest => contactTest.firstName === firstNameModify.value && contactTest.lastName === nameModify.value && contactTest.numberPhone === phoneModify.value);
+    var numberExists = allContactsLS.findIndex(contactTest => contactTest.numberPhone === phoneModify.value);
+    console.log(contactExists)
+    console.log(numberExists)
+
+    if(contactExists != -1){
+        alert("Ce contact existe déjà...")
+    } else if(numberExists != -1){
+        if((contactActual.firstName == firstNameModify.value && contactActual.lastName == nameModify.value) || (contactActual.firstName == firstNameModify.value && contactActual.numberPhone == phoneModify.value) || (contactActual.lastName == nameModify.value && contactActual.numberPhone == phoneModify.value)){
+            //modification des informations déjà existante
+            contactActual['firstName'] = firstNameModify.value;
+            contactActual['lastName'] = nameModify.value;
+            contactActual['numberPhone'] = phoneModify.value;
+            contactActual['address'] = addressModify.value;
+            contactActual['email'] = emailModify.value;
+
+            alert("Le contact " + contactActual.firstName + " " + contactActual.lastName + " a bien été modifié.")
+
+            //modification dans le LS
+            localStorage.setItem("allContacts", JSON.stringify(allContactsLS))
+
+            location.reload() 
+        } else {
+            alert("Ce numéro est déjà associé à " + allContactsLS[numberExists].firstName + " " + allContactsLS[numberExists].lastName)
+        }
+  } else {
+        //modification des informations déjà existante
+        contactActual['firstName'] = firstNameModify.value;
+        contactActual['lastName'] = nameModify.value;
+        contactActual['numberPhone'] = phoneModify.value;
+        contactActual['address'] = addressModify.value;
+        contactActual['email'] = emailModify.value;
+
+        alert("Le contact " + contactActual.firstName + " " + contactActual.lastName + " a bien été modifié.")
+
+        //modification dans le LS
+        localStorage.setItem("allContacts", JSON.stringify(allContactsLS))
+
+        location.reload()  
+    }  
+})
+
+btnCloseModify.addEventListener('click', () => {
+    modalModification.style.display = 'none';
+    location.reload()
+})
+
+btnCloseInformations.addEventListener('click', () => {
+    contactInformations.style.display = 'none';
+    location.reload()
+})
+
+btnModalModifyDismiss.addEventListener('click', () => {
+    modalModification.style.display = 'block';
+    contactInformations.style.display = 'none';    
 })
 
 //***************************************************//
@@ -139,7 +195,7 @@ modalDelete.addEventListener("click", () => {
         if(allContactsLS[i].numberPhone == modalPhone){
             allContactsLS.splice(i,1)
             localStorage.setItem("allContacts", JSON.stringify(allContactsLS));
-            alert("Le contact va être supprimeé !")
+            alert("Le contact va être supprimé !")
             window.location.reload();
         }
     }
@@ -167,6 +223,7 @@ let firstName, lastName, numberPhone, email, address;
 //création de booléens
 let boolFirstName = true, boolName = true, boolPhoneNumber = true, boolMail = true;
 
+//vérification input prénom
 firstNameFile.addEventListener('change', () => {
     if(firstNameFile.value.match("[0-9]")){
         firstNameError.innerText = "Votre prénom ne peut pas contenir de chiffre."
@@ -193,6 +250,7 @@ firstNameFile.addEventListener('change', () => {
     }
 })
 
+//vérification input nom
 nameFile.addEventListener('change', () => {
     if(nameFile.value.match("[0-9]")){
         nameError.innerText = "Votre nom ne peut pas contenir de chiffre."
@@ -219,34 +277,27 @@ nameFile.addEventListener('change', () => {
     }
 })
 
+//vérification input numéro
 numberPhoneFile.addEventListener('change', () => {
-    if(numberPhoneFile.value.match("[0-9]")){
-        if(numberPhoneFile.value.length !== 10){
-            numberPhoneError.innerText = "Vous devez entrer un numéro de téléphone valide."
-            numberPhoneFile.classList.remove('border-success')
-            numberPhoneFile.classList.add('border-danger')
-            boolPhoneNumber = false;
-        } else {
-            numberPhoneError.innerText = ""
-            numberPhoneFile.classList.remove('border-danger')
-            numberPhoneFile.classList.add('border-success')
-            boolPhoneNumber = true;
-        }
+    if(numberPhoneFile.value.match(/^(?:(?:\+|00)33|0)\s*[1-9](?:[\s.-]*\d{2}){4}$/gmi)){
+        numberPhoneError.innerText = ""
+        numberPhoneFile.classList.remove('border-danger')
+        numberPhoneFile.classList.add('border-success')
+        boolPhoneNumber = true;  
+    } else if (numberPhoneFile.value.match(/^\s*$/g)){
+        numberPhoneError.innerText = "Ce champ est obligatoire."
+        numberPhoneFile.classList.remove('border-success')
+        numberPhoneFile.classList.add('border-danger')
+        boolPhoneNumber = false;
     } else {
-        if(numberPhoneFile.value.match(/^\s*$/g)){
-            numberPhoneError.innerText = "Ce champ est obligatoire."
-            numberPhoneFile.classList.remove('border-success')
-            numberPhoneFile.classList.add('border-danger')
-            boolPhoneNumber = false;
-        } else {
-            numberPhoneError.innerText = "Vous devez entrer un numéro de téléphone valide."
-            numberPhoneFile.classList.remove('border-success')
-            numberPhoneFile.classList.add('border-danger')
-            boolPhoneNumber = false;
-        }
+        numberPhoneError.innerText = "Vous devez entrer un numéro de téléphone valide."
+        numberPhoneFile.classList.remove('border-success')
+        numberPhoneFile.classList.add('border-danger')
+        boolPhoneNumber = false;
     }
 })
 
+//vérification input email
 emailFile.addEventListener('change', () => {
     if(!emailFile.value.match(/^\w+([\.-]?\w+)*@\w+([\.-]?\w+)*(\.\w{2,3})+$/)){
         if(emailFile.value.match(/^\s*$/g)){
@@ -255,7 +306,7 @@ emailFile.addEventListener('change', () => {
             emailFile.classList.remove('border-success')
             boolMail = false;
         } else {
-            emailError.innerText = "L'e-mail renseigner n'est pas correcte."
+            emailError.innerText = "L'e-mail renseigné n'est pas correct."
             emailFile.classList.remove('border-success')
             emailFile.classList.add('border-danger')
             boolMail = false;
@@ -268,6 +319,7 @@ emailFile.addEventListener('change', () => {
     }
 })
 
+//vérification champs avant écriture du contact dans le localStorage
 addButton.addEventListener('click', (e) => {
     e.preventDefault();
 
@@ -317,8 +369,6 @@ function writeContact(contact){
     //contact = [firstName, lastName, numberPhone, email, address]
 
     var allContactsLS = JSON.parse(localStorage.getItem("allContacts")) || []
-    //console.log(allContactsLS)
-
 
     //on vérifie si le contact/numéro existe déjà
     var alreadyAdd =  allContactsLS.findIndex(contactTest => contactTest.firstName == contact.firstName  && contactTest.lastName == contact.lastName && contactTest.numberPhone == contact.numberPhone);
@@ -337,3 +387,7 @@ function writeContact(contact){
         location.reload();
     }
 }
+
+//***************************************************//
+//              RECHERCHER UN CONTACT               //
+//*************************************************//

@@ -40,7 +40,7 @@
             <section class="pt-5">
                 <div class="container">
                     <div class="mt-5 pt-4 pt-md-0 mt-md-4 mb-4">
-                        <h1 class="fs-2">Le carnet d'adresse by PandaDev</h1>
+                        <h1 class="fs-2">Le carnet d'adresses by PandaDev</h1>
                     </div>
                 </div>
             </section>
@@ -378,7 +378,7 @@
                     <div class="modal-content border border-2 border-primary">
                         <div class="modal-header">
                             <h5 id="modal-title" class="modal-title"></h5>
-                            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                            <button id="closeInformations" type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                         </div>
                         <div class="modal-body">
                             <p id="modal-phone"> </p>
@@ -398,7 +398,7 @@
                     <div class="modal-content border border-2 border-primary">
                         <div class="modal-header">
                             <h5 class="modal-title">Modifier </h5>
-                            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                            <button id="closeModify" type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                         </div>
                         <div class="modal-body">
                             <form class="row">
@@ -425,7 +425,8 @@
                             </form>
                         </div>
                         <div class="modal-footer">
-                            <button id="modal-modify-validity" class="btn btn-primary">Confirmer</button>
+                            <button id="modal-modify-dismiss" type="button" class="btn btn-primary" data-bs-target="#contactInformations" data-bs-toggle="modal">Annuler</button>
+                            <button id="modal-modify-validity" class="btn btn-success">Confirmer</button>
                         </div>
                     </div>
                 </div>
