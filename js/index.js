@@ -26,13 +26,13 @@ function showAllContacts(){
 
         //association des classes aux éléments
         for(let j = 0 ; j < classesDiv.length ; j++){
-        divContact.classList.add(classesDiv[j]);
+            divContact.classList.add(classesDiv[j]);
         }
 
         for(let k = 0 ; k < classesH3.length ; k++){
             contactName.classList.add(classesH3[k])
         }
-
+        divContact.classList.add(allContactsLS[i].firstName.toLowerCase() + "-" + allContactsLS[i].lastName.toLowerCase() + "-test")
         const contactPlace = document.getElementById(allContactsLS[i].firstName[0].toLowerCase())
         divContact.appendChild(contactName);
         contactName.innerText = allContactsLS[i].firstName + " " + allContactsLS[i].lastName;
@@ -418,3 +418,90 @@ function writeContact(contact){
 //***************************************************//
 //              RECHERCHER UN CONTACT               //
 //*************************************************//
+
+const searchForm = document.getElementById("searchForm");
+const searchFormButton = document.getElementById("searchFormButton");
+
+function isSearchInContact(){
+    let searchText = searchForm.value;
+    //Liste qui contiendra tout les matchs avant affichage
+    let matchList = []
+
+    if(searchText === "" || searchText === null || searchText === undefined){
+        console.log("Recherche vide !")
+    } else {
+        for(let i = 0 ; i < allContactsLS.length ; i++){
+            let searchNumerPhoneTemp = null;
+            
+            if(searchText[0] === "0"){
+                searchNumerPhoneTemp = ""
+                for(let l = 1 ; l < searchText.length ; l++){
+                    searchNumerPhoneTemp += searchText[l]
+                }
+            } else if(searchText[0] === "+"){
+                searchNumerPhoneTemp = ""
+                for(let m = 3 ; m < searchText.length ; m++){
+                    searchNumerPhoneTemp += searchText[m]
+                }
+            }
+            //console.log(numberPhoneTemp, searchNumerPhoneTemp)
+            
+            if(allContactsLS[i].firstName.toLowerCase().includes(searchText.toLowerCase())){
+                matchList.push(allContactsLS[i])
+            } else if(allContactsLS[i].lastName.toLowerCase().includes(searchText.toLowerCase())){
+                matchList.push(allContactsLS[i])
+            } else if(allContactsLS[i].numberPhone.includes(searchNumerPhoneTemp)){
+                matchList.push(allContactsLS[i])
+            }
+        }
+    }
+
+    const searchResults = document.getElementById('searchResults')
+    const resultNotFound = document.getElementById('resultNotFound')
+    let allSections = document.getElementsByClassName('sectionContact')
+
+    if(matchList.length === 0){
+        resultNotFound.classList.remove('d-none')
+        searchResults.classList.remove('d-block')
+        resultNotFound.classList.add('d-block')
+        searchResults.classList.add('d-none')
+        for(let i = 0 ; i < allSections.length ; i++){
+            allSections[i].classList.remove('d-block')
+            allSections[i].classList.add('d-none')
+        }
+    } else {
+        searchResults.classList.remove('d-none')
+        resultNotFound.classList.remove('d-block')
+        searchResults.classList.add('d-block')
+        resultNotFound.classList.add('d-none')
+    }
+    
+    /*let showRange
+
+    console.log(matchList)
+    console.log(matchList.length === 0)
+    if(matchList.length !== 0){
+        showRange = document.getElementsByClassName(matchList[0].firstName.toLowerCase() + "-" + matchList[0].lastName.toLowerCase() + "-test")
+        console.log(showRange)
+    } else {
+        showRange = null
+    }
+    
+    if(showRange == null){
+        console.log("null")
+    } else {
+        console.log("pas null")
+        console.log(showRange[0].parentNode.parentNode.parentNode.nodeName)
+    }*/
+
+    //console.log(showRange !== null)
+    //console.log(showRange[0].parentNode.parentNode.parentNode !== null)
+}
+
+searchForm.addEventListener('keyup', (e) => {
+    if(e.keyCode === 13){
+        isSearchInContact()
+    }
+})
+
+searchFormButton.addEventListener('click', isSearchInContact)
