@@ -124,15 +124,31 @@ modalModifyValidity.addEventListener('click', () => {
     //récupération du contact à modifier
     var contactActual = allContactsLS[contactPlace]
 
+    var numberTempModify = ""
+    if(phoneModify.value[0] === "0"){
+        for(let i = 1 ; i < phoneModify.value.length ; i++){
+            numberTempModify += phoneModify.value[i]
+            console.log(numberTempModify)
+        }
+    } else if(phoneModify.value[0] === "+"){
+        for(let j = 3 ; j < phoneModify.value.length ; j++){
+            numberTempModify += phoneModify.value[j]
+            console.log(numberTempModify)
+        }
+    }
+    console.log(numberTempModify)
+
     var contactExists = allContactsLS.findIndex(contactTest => contactTest.firstName === firstNameModify.value && contactTest.lastName === nameModify.value && contactTest.numberPhone === phoneModify.value);
-    var numberExists = allContactsLS.findIndex(contactTest => contactTest.numberPhone === phoneModify.value);
+    var numberExists = allContactsLS.findIndex(contactTest => contactTest.numberPhone.includes(numberTempModify));
     console.log(contactExists)
     console.log(numberExists)
 
     if(contactExists != -1){
         alert("Ce contact existe déjà...")
     } else if(numberExists != -1){
-        if((contactActual.firstName == firstNameModify.value && contactActual.lastName == nameModify.value) || (contactActual.firstName == firstNameModify.value && contactActual.numberPhone == phoneModify.value) || (contactActual.lastName == nameModify.value && contactActual.numberPhone == phoneModify.value)){
+        if(firstNameModify.value !== allContactsLS[numberExists].firstName || nameModify.value !== allContactsLS[numberExists].lastName){
+            alert("Ce numéro est déjà associé à " + allContactsLS[numberExists].firstName + " " + allContactsLS[numberExists].lastName)
+        } else if((contactActual.firstName === firstNameModify.value && contactActual.lastName === nameModify.value) || (contactActual.firstName === firstNameModify.value && contactActual.numberPhone === phoneModify.value) || (contactActual.lastName === nameModify.value && contactActual.numberPhone === phoneModify.value)){
             //modification des informations déjà existante
             contactActual['firstName'] = firstNameModify.value;
             contactActual['lastName'] = nameModify.value;
@@ -370,10 +386,21 @@ function writeContact(contact){
 
     var allContactsLS = JSON.parse(localStorage.getItem("allContacts")) || []
 
+    var numberTemp = ""
+    if(contact.numberPhone[0] === "0"){
+        for(let i = 1 ; i < contact.numberPhone.length ; i++){
+            numberTemp += contact.numberPhone[i]
+        }
+    } else if(contact.numberPhone[0] === "+"){
+        for(let j = 3 ; j < contact.numberPhone.length ; j++){
+            numberTemp += contact.numberPhone[j]
+        }
+    }
+
     //on vérifie si le contact/numéro existe déjà
     var alreadyAdd =  allContactsLS.findIndex(contactTest => contactTest.firstName == contact.firstName  && contactTest.lastName == contact.lastName && contactTest.numberPhone == contact.numberPhone);
-    var numberAlreadyKnown = allContactsLS.findIndex(contactTest => contactTest.numberPhone == contact.numberPhone);
-    console.log(alreadyAdd)
+    var numberAlreadyKnown = allContactsLS.findIndex(contactTest => contactTest.numberPhone.includes(numberTemp));
+
     if(alreadyAdd == 0){
         window.alert(contact.firstName + " " + contact.lastName + " existe déjà...")
     } else if (numberAlreadyKnown == 0){
