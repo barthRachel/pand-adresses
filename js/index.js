@@ -8,7 +8,7 @@ function showAllContacts(){
     //récupération du localStorage
     var allContactsLS = JSON.parse(localStorage.getItem("allContacts")) || []
     //création des tableaux des classes a ajouter pour la mise en forme
-    const classesDiv = ["col-12", "my-1", "bg-secondary", "rounded", "col-md-5", "mx-md-1"];
+    const classesDiv = ["col-12", "my-1", "bg-secondary", "rounded", "col-md-5", "mx-md-1", "resSearchContacts", "resetContacts"];
     const classesH3 = ["my-3", "text-light", "fs-4"]
     //tri dans l'ordre alphabétique
     allContactsLS.sort(function(a,b){
@@ -146,7 +146,8 @@ modalModifyValidity.addEventListener('click', () => {
     if(contactExists != -1){
         alert("Ce contact existe déjà...")
     } else if(numberExists != -1){
-        if(firstNameModify.value !== allContactsLS[numberExists].firstName || nameModify.value !== allContactsLS[numberExists].lastName){
+        console.log("place : " + numberExists)
+        if(firstNameModify.value !== allContactsLS[numberExists].firstName && nameModify.value !== allContactsLS[numberExists].lastName){
             alert("Ce numéro est déjà associé à " + allContactsLS[numberExists].firstName + " " + allContactsLS[numberExists].lastName)
         } else if((contactActual.firstName === firstNameModify.value && contactActual.lastName === nameModify.value) || (contactActual.firstName === firstNameModify.value && contactActual.numberPhone === phoneModify.value) || (contactActual.lastName === nameModify.value && contactActual.numberPhone === phoneModify.value)){
             //modification des informations déjà existante
@@ -400,6 +401,7 @@ function writeContact(contact){
     //on vérifie si le contact/numéro existe déjà
     var alreadyAdd =  allContactsLS.findIndex(contactTest => contactTest.firstName == contact.firstName  && contactTest.lastName == contact.lastName && contactTest.numberPhone == contact.numberPhone);
     var numberAlreadyKnown = allContactsLS.findIndex(contactTest => contactTest.numberPhone.includes(numberTemp));
+    console.log(numberAlreadyKnown)
 
     if(alreadyAdd == 0){
         window.alert(contact.firstName + " " + contact.lastName + " existe déjà...")
@@ -423,6 +425,31 @@ const searchForm = document.getElementById("searchForm");
 const searchFormButton = document.getElementById("searchFormButton");
 
 function isSearchInContact(){
+    //récupération du texte qui s'affichera en fonction de s'il y a un résultat ou non
+    const searchResults = document.getElementById('searchResults')
+    const resultNotFound = document.getElementById('resultNotFound')
+    //récupération des sections pour cacher celles qui ne correspondent pas
+    let allSections = document.getElementsByClassName('sectionContact')
+    let otherSections = document.getElementsByClassName('resSearchSections')
+    let otherContacts = document.getElementsByClassName('resSearchContacts')
+    let showContact, parentNode;
+
+    const restetSection = document.getElementsByClassName('reset')
+    const resetContacts = document.getElementsByClassName('resetContacts')
+
+    //on réinitialise les classes avant changement de recherche
+    for(let r = 0 ; r < restetSection.length ; r++){            
+        restetSection[r].classList.add('resSearchSections')
+        restetSection[r].classList.remove('d-none')
+        restetSection[r].classList.add('d-block')
+    }
+
+    for(let q = 0 ; q < resetContacts.length ; q++){
+        resetContacts[q].classList.add('resSearchContacts')
+        resetContacts[q].classList.remove('d-none')
+        resetContacts[q].classList.add('d-block')
+    }
+
     let searchText = searchForm.value;
     //Liste qui contiendra tout les matchs avant affichage
     let matchList = []
@@ -444,7 +471,6 @@ function isSearchInContact(){
                     searchNumerPhoneTemp += searchText[m]
                 }
             }
-            //console.log(numberPhoneTemp, searchNumerPhoneTemp)
             
             if(allContactsLS[i].firstName.toLowerCase().includes(searchText.toLowerCase())){
                 matchList.push(allContactsLS[i])
@@ -456,46 +482,40 @@ function isSearchInContact(){
         }
     }
 
-    const searchResults = document.getElementById('searchResults')
-    const resultNotFound = document.getElementById('resultNotFound')
-    let allSections = document.getElementsByClassName('sectionContact')
 
-    if(matchList.length === 0){
+    if(matchList.length === 0){ //aucun résultat = on affiche le texte qui correspond
         resultNotFound.classList.remove('d-none')
         searchResults.classList.remove('d-block')
         resultNotFound.classList.add('d-block')
         searchResults.classList.add('d-none')
-        for(let i = 0 ; i < allSections.length ; i++){
+        for(let i = 0 ; i < allSections.length ; i++){ //et on cache toutes les sections
             allSections[i].classList.remove('d-block')
             allSections[i].classList.add('d-none')
         }
-    } else {
+    } else { //sinon on affiche l'autre texte
         searchResults.classList.remove('d-none')
         resultNotFound.classList.remove('d-block')
         searchResults.classList.add('d-block')
         resultNotFound.classList.add('d-none')
-    }
-    
-    /*let showRange
+        //on laisse les sections qui contiennent un résultat
+        for(let j = 0 ; j < matchList.length ; j++){
+            showContact = document.getElementsByClassName(matchList[j].firstName.toLowerCase() + "-" + matchList[j].lastName.toLowerCase() + "-test")
+            showContact[0].classList.remove('resSearchContacts')
+            parentNode = showContact[0].parentNode.parentNode.parentNode
+            parentNode.classList.remove('resSearchSections')
+        }
+        //et on cache les autres
+        for(let k = 0 ; k < otherSections.length ; k++){
+            if(otherSections[k].classList.contains('d-block')){
+                otherSections[k].classList.remove('d-block')
+            }
+            otherSections[k].classList.add('d-none')
+        }
 
-    console.log(matchList)
-    console.log(matchList.length === 0)
-    if(matchList.length !== 0){
-        showRange = document.getElementsByClassName(matchList[0].firstName.toLowerCase() + "-" + matchList[0].lastName.toLowerCase() + "-test")
-        console.log(showRange)
-    } else {
-        showRange = null
+        for(let l = 0 ; l < otherContacts.length ; l++){
+            otherContacts[l].classList.add('d-none')
+        }
     }
-    
-    if(showRange == null){
-        console.log("null")
-    } else {
-        console.log("pas null")
-        console.log(showRange[0].parentNode.parentNode.parentNode.nodeName)
-    }*/
-
-    //console.log(showRange !== null)
-    //console.log(showRange[0].parentNode.parentNode.parentNode !== null)
 }
 
 searchForm.addEventListener('keyup', (e) => {
